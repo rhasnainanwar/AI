@@ -2,14 +2,20 @@ import pandas as pd
 import re
 import nltk
 from bs4 import BeautifulSoup
+import numpy as np
+import sys
 
 from tqdm import tqdm
+from random import choices
 
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 stops = set(stopwords.words('english'))
 
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 def clean_data(file_name):
 	print('Reading data...')
@@ -37,17 +43,33 @@ def clean_data(file_name):
 	return data
 
 if __name__ == '__main__':
-	# data = clean_data('../../IMDBlabeledTrainData.tsv')
-	data = pd.read_csv('../../IMDBcleanedData.tsv', sep='\t')
+	data = clean_data('../../IMDBlabeledTrainData.tsv')
+	# data = pd.read_csv('../../IMDBcleanedData.tsv', sep='\t')
 
 	reviews = data['review']
 	sentiments = data['sentiment']
 
+	X_train, X_test, y_train, y_test = train_test_split(reviews, sentiments, test_size=0.20)
+	
+	alpha = float(sys.argv[1])
+	featrues = int(sys.argv[2])
+
+	# featrues extraction
+	vectorizer = CountVectorizer(analyzer='word', tokenizer=None, preprocessor=None, stop_words=None, max_features=featrues)
+
+	# get features
+	X = vectorizer.fit_transform(X_train).toarray()
+
 	# classifier
-	vectorizer = CountVectorizer(analyzer='word', tokenizer=None, preprocessor=None, stop_words=None, max_features=100)
+	print('Training with alpha=',alpha,'\tNO. of Features:',featrues)
+	classifier = MultinomialNB(alpha=alpha)
 
 	# fitting the model
-	X = vectorizer.fit_transform(reviews).toarray()
+	classifier.fit(X, np.array(y_train))
 
-	print(X.shape)
-	print(vectorizer.vocabulary)
+	# test
+	tX = vectorizer.transform(X_test).toarray()
+
+	y_pred = classifier.predict(tX)
+
+	print('Accuracy:',accuracy_score(y_test, y_pred))
