@@ -1,3 +1,5 @@
+import math
+
 """
 We implement bounding box algorithm for the OTSU binarized image.
 """
@@ -73,3 +75,22 @@ def findTransitions(img, left, right, top, bottom):
 				countBW += 1
 			prevPixel = curPixel
 	return countBW
+
+
+def blackPixelAngleSummation(img, left, right, top, bottom):
+	sum = 0
+	blackCount = 0
+	
+	for x in range(left, right):
+		for y in range(top, bottom):
+			
+			if(img[y,x] == 0):
+				blackCount += 1
+				if(x == left):
+					sum += math.pi / 2
+				else:
+					sum += math.atan ((float) (bottom-y)  / (float) (x-left))
+	
+	if(blackCount == 0):
+		return 0
+	return sum / blackCount
