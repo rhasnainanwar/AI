@@ -53,7 +53,10 @@ def split(image, left, right, top, bottom, depth=0):
 
 		centroids.append((cx, cy))
 
-		ratios.append( (right-left)/(bottom-top) )
+		try:	
+			ratios.append( (right-left)/(bottom-top) )
+		except:
+			ratios.append( 0 )
 
 		transitions.append( findTransitions(image, left, right, top, bottom) )
 
@@ -64,6 +67,9 @@ if __name__ == '__main__':
 
 	src = sys.argv[1]
 	dst = sys.argv[2]
+
+	if not os.path.isdir( dst ):
+		os.mkdir(dst)
 
 	for img_file in os.listdir(src):
 		rectangles = []
