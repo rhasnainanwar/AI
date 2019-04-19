@@ -1,4 +1,4 @@
-from scipy.spatial.distance import euclidean
+import numpy as np
 import sys
 import os
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 					ref_data = [float(line) for line in ref_file.readlines()]
 					ques_data = [float(line) for line in ques_file.readlines()]
 
-				result[field] = euclidean(ref_data, ques_data)
+				result[field] = np.mean(np.array(ref_data) - np.array(ques_data))
 
 			#print(result)
 			results.append(result)
